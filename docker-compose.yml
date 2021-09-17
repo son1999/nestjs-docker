@@ -1,0 +1,48 @@
+version: "3.5"
+services: 
+  api:
+    build: .
+    container_name: api
+    depends_on: 
+      - mysql
+    env_file: .env
+    ports:
+      - 3000:3000
+    volumes: 
+      - ./:/app
+    networks: 
+      - nestjs-docker
+  mysql:
+    build: ./database
+    container_name: mysql
+    image: mysql:5.7
+    volumes: 
+      - ./src/database/data:/var/lib/mysql
+    ports: 
+      - ${MYSQL_PORT}:${MYSQL_PORT}
+    environment: 
+      MYSQL_PORT: ${MYSQL_PORT}
+      MYSQL_DATABASE: ${MYSQL_DATABASE}
+      MYSQL_USER: ${MYSQL_USER}
+      MYSQL_PASSWORD: ${MYSQL_PASSWORD}
+    networks: 
+      - nestjs-docker
+  pma: 
+    image: phpmyadmin/phpmyadmin:latest
+    links: 
+      - mysql:${MYSQL_HOST}
+    depends_on:
+      - mysql
+    ports:
+      - 8080:80
+    environment: 
+      MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD}
+      PMA_HOST: ${MYSQL_HOST}
+      PMA_PORT: ${MYSQL_PORT}
+    networks: 
+      - nestjs-docker
+networks:
+  nestjs-docker:
+    
+
+      
